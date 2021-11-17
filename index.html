@@ -1,7 +1,7 @@
 <script src="/js/web3.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 
-<p>Current count: <span id="count">??</span></p>
+<p>Current count: <span id="count">--</span></p>
 <button id="getCirculatingSupply">Get current count</button>
 <button id="increment">Increment count</button>
 <div id="log"></div>
@@ -46,8 +46,6 @@
     $('#getCirculatingSupply').click(function (e) {
       e.preventDefault();
 
-      log("Calling getCirculatingSupply...");
-
       counter.getCirculatingSupply.call(function (err, result) {
         if (err) {
           return error(err);
@@ -57,7 +55,9 @@
 
         // The return value is a BigNumber object
         $('#count').text(result.toString());
-      });
+      })
+      
+      log(result);
     });
 
     $('#increment').click(function (e) {
