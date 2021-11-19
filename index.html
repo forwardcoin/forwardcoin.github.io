@@ -1,117 +1,187 @@
-<script src="/js/web3.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<html>
+  <head>
+    <!-- Moralis SDK code -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/moralis/dist/moralis.js"></script>
+  </head>
+  <body>
+    <h1>Gas Stats With Moralis</h1>
 
-<p>Current count: <span id="count">??</span></p>
-<button id="getCirculatingSupply">Get current count</button>
-<button id="increment">Increment count</button>
-<div id="log"></div>
-<div id="content"></div>
+    <button id="btn-login">Moralis Login</button>
+    <button id="btn-logout">Logout</button>
+    <button id="btn-claim_div">Claim Dividend</button>
+    <button id="btn-get-stats">Refresh Stats</button>
 
-<script>
-  function log(message) {
-    $('#log').append($('<p>').text(message));
-    $('#log').scrollTop($('#log').prop('scrollHeight'));
-  }
+    <script>
 
-  function error(message) {
-    $('#log').append($('<p>').addClass('dark-red').text(message));
-    $('#log').scrollTop($('#log').prop('scrollHeight'));
-  }
+      //const web3 = await Moralis.enableWeb3();
+      //const contract = new web3.eth.Contract(contractAbi, contractAddress);
 
-  function waitForReceipt(hash, cb) {
-    web3.eth.getTransactionReceipt(hash, function (err, receipt) {
-      if (err) {
-        error(err);
-      }
+      // connect to Moralis server
 
-      if (receipt !== null) {
-        // Transaction went through
-        if (cb) {
-          cb(receipt);
+      const serverUrl = "https://fb4lgk90k9q6.usemoralis.com:2053/server";
+      const appId = "ktHvEa2Fvn9b9GkvZaJ5khsa1BHu404GsuHvxZ38";
+      Moralis.start({ serverUrl, appId });
+
+      async function login() {
+        let user = Moralis.User.current();
+        if (!user) {
+          user = await Moralis.Web3.authenticate();
         }
-      } else {
-        // Try again in 1 second
-        window.setTimeout(function () {
-          waitForReceipt(hash, cb);
-        }, 1000);
+        console.log("logged in user:", user);
+        getStats();
       }
-    });
-  }
-
-  var address = "0xC001BBe2B87079294C63EcE98BdD0a88D761434e";
-  var abi = [{"inputs":[{"internalType":"address","name":"_dexRouter","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"amountBNB","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amountBOG","type":"uint256"}],"name":"AutoLiquify","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"duration","type":"uint256"}],"name":"BuybackMultiplierActive","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"owner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[],"name":"MASK","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"WBNB","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"_maxTxAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"holder","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"}],"name":"approveMax","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"adr","type":"address"}],"name":"authorize","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"autoBuybackEnabled","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"autoLiquidityReceiver","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"clearBuybackMultiplier","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"pure","type":"function"},{"inputs":[],"name":"distributorAddress","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getCirculatingSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"accuracy","type":"uint256"}],"name":"getLiquidityBacking","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getMultipliedFee","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getOwner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bool","name":"selling","type":"bool"}],"name":"getTotalFee","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"adr","type":"address"}],"name":"isAuthorized","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"target","type":"uint256"},{"internalType":"uint256","name":"accuracy","type":"uint256"}],"name":"isOverLiquified","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"isOwner","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"launch","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"launchedAt","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"launchedAtTimestamp","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"marketingFeeReceiver","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"},{"inputs":[],"name":"pair","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"router","outputs":[{"internalType":"contract IDEXRouter","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bool","name":"_enabled","type":"bool"},{"internalType":"uint256","name":"_cap","type":"uint256"},{"internalType":"uint256","name":"_amount","type":"uint256"},{"internalType":"uint256","name":"_period","type":"uint256"}],"name":"setAutoBuybackSettings","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"numerator","type":"uint256"},{"internalType":"uint256","name":"denominator","type":"uint256"},{"internalType":"uint256","name":"length","type":"uint256"}],"name":"setBuybackMultiplierSettings","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_minPeriod","type":"uint256"},{"internalType":"uint256","name":"_minDistribution","type":"uint256"}],"name":"setDistributionCriteria","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"gas","type":"uint256"}],"name":"setDistributorSettings","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_autoLiquidityReceiver","type":"address"},{"internalType":"address","name":"_marketingFeeReceiver","type":"address"}],"name":"setFeeReceivers","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_liquidityFee","type":"uint256"},{"internalType":"uint256","name":"_buybackFee","type":"uint256"},{"internalType":"uint256","name":"_reflectionFee","type":"uint256"},{"internalType":"uint256","name":"_marketingFee","type":"uint256"},{"internalType":"uint256","name":"_feeDenominator","type":"uint256"}],"name":"setFees","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"holder","type":"address"},{"internalType":"bool","name":"exempt","type":"bool"}],"name":"setIsDividendExempt","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"holder","type":"address"},{"internalType":"bool","name":"exempt","type":"bool"}],"name":"setIsFeeExempt","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"holder","type":"address"},{"internalType":"bool","name":"exempt","type":"bool"}],"name":"setIsTxLimitExempt","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bool","name":"_enabled","type":"bool"},{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"setSwapBackSettings","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_target","type":"uint256"},{"internalType":"uint256","name":"_denominator","type":"uint256"}],"name":"setTargetLiquidity","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"setTxLimit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"swapEnabled","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"swapThreshold","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address payable","name":"adr","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"bool","name":"triggerBuybackMultiplier","type":"bool"}],"name":"triggerZeusBuyback","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"adr","type":"address"}],"name":"unauthorize","outputs":[],"stateMutability":"nonpayable","type":"function"},{"stateMutability":"payable","type":"receive"}];
-  
-  function fizzBuzz() {
-    counter.getCirculatingSupply.call(err, result)
-    myprint(result)
-  }
-
-  function myprint(output) { // replace your calls to _print_ with _myprint_
-    var p = document.createElement("p"); // Create a <p> element
-    var t = document.createTextNode(output); // Create a text node
-    p.appendChild(t);
-    document.getElementById("content").appendChild(p);
-  }
-
-  (function() {
-    fizzBuzz();
-  })
-
-  $(function () {
-    var counter;
-
-    $('#getCirculatingSupply').click(function (e) {
-      e.preventDefault();
-
-      counter.getCirculatingSupply.call(function (err, result) {
-        if (err) {
-          return error(err);
-        } else {
-          log("getCirculatingSupply call executed successfully.");
-        }
-
-        // The return value is a BigNumber object
-        $('#count').text(result.toString());
-      })
+      async function logOut() {
+        await Moralis.User.logOut();
+        console.log("logged out");
+      }
+      // bind button click handlers
+      document.getElementById("btn-login").onclick = login;
+      document.getElementById("btn-logout").onclick = logOut;
+      document.getElementById("btn-claim_div").onclick = claimDiv;
+      document.getElementById("btn-get-stats").onclick = getStats;
       
-      log(result);
-    });
-
-    $('#increment').click(function (e) {
-      e.preventDefault();
-
-      if(web3.eth.defaultAccount === undefined) {
-        return error("No accounts found. If you're using MetaMask, " +
-                     "please unlock it first and reload the page.");
-      }
-
-      log("Calling increment...");
-
-      counter.increment.sendTransaction(function (err, hash) {
-        if (err) {
-          return error(err);
+      function getStats() {
+        const user = Moralis.User.current();
+        if (user) {
+          getUserTransactions(user);
         }
+      }
+      
+      async function getUserTransactions(user) {
+        // create query
+        const query = new Moralis.Query("EthTransactions");
+        query.equalTo("from_address", user.get("ethAddress"));
+        // run query
+        const results = await query.find();
+        console.log("user transactions:", results);
+      }
+      
+      //get stats on page load
+      getStats();
 
-        waitForReceipt(hash, function () {
-          log("Transaction succeeded. " +
-              "Call getCirculatingSupply again to see the latest count.");
-        });
-      });
-    });
+      
 
-    if (typeof(web3) === "undefined") {
-      error("Unable to find web3. " +
-            "Please run MetaMask (or something else that injects web3).");
-    } else {
-      log("Found injected web3.");
-      web3 = new Web3('https://bsc-dataseed1.binance.org:443');
-      //if (web3.version.network != 3) {
-      //  error("Wrong network detected. Please switch to the Ropsten test network.");
-      //} else {
-      log("Connected to the Ropsten test network.");
-      counter = web3.eth.contract(abi).at(address);
-      $('#getCirculatingSupply').click();
-      //}
-    }
-  });
-</script>
+      // get token balances
+      async function getBalance() {
+
+        const user = Moralis.User.current()
+        const user_address = user.get("ethAddress")
+        
+        const options = { chain: 'bsc', address: user_address }
+        const balances = await Moralis.Web3API.account.getTokenBalances(options);
+        //var user_balance_JSON = balances.filter( element => element.name == "EverGrow Coin")
+        var user_balance_JSON = balances.filter( element => element.token_address == "0xc001bbe2b87079294c63ece98bdd0a88d761434e" )
+        var user_balance_EGC = (user_balance_JSON[0].balance / 1e9).toFixed(3)
+        console.log("full balances", balances);
+        console.log("balances:", user_balance_EGC);
+        document.getElementById("total_balance").innerHTML = user_balance_EGC;
+      };
+      getBalance();
+
+
+      async function getPrice() {
+        //Get token price on PancakeSwap v2 BSC
+        const options = {
+          address: "0xC001BBe2B87079294C63EcE98BdD0a88D761434e",
+          chain: "bsc",
+          exchange: "PancakeSwapv2"
+        };
+        const price = await Moralis.Web3API.token.getTokenPrice(options);
+        console.log("price:", price.usdPrice)
+        document.getElementById("the_price").innerHTML = price.usdPrice;
+        }
+      getPrice();
+
+      // interact with main contract: 0xC001BBe2B87079294C63EcE98BdD0a88D761434e
+
+      async function getSupply() {
+        //Read smart contract from EVM and return circulating supply
+        const ABI = [{"inputs":[],"name":"getCirculatingSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
+        const options_supply = {
+          chain: "bsc",
+          address: "0xC001BBe2B87079294C63EcE98BdD0a88D761434e",
+          function_name: "getCirculatingSupply",
+          abi: ABI
+        };
+        const circulating = await Moralis.Web3API.native.runContractFunction(options_supply);
+        const supply = (circulating / 1e9).toFixed(3)
+        console.log("supply:", supply)
+        document.getElementById("the_supply").innerHTML = supply;
+        }
+      getSupply();
+
+      async function getTotalDistributed() {
+        //Read smart contract from EVM and return circulating supply
+        const ABI = [{"inputs":[],"name":"totalDistributed","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
+        const options_distributed = {
+          chain: "bsc",
+          address: "0xfbAb1D829e36EFbD13642229EAe2964004f38C41",
+          function_name: "totalDistributed",
+          abi: ABI
+        };
+        const distributed = await Moralis.Web3API.native.runContractFunction(options_distributed);
+        const distributed_float = (distributed / 1e18).toFixed(3)
+        console.log("distributed:", distributed_float)
+        document.getElementById("the_distribution").innerHTML = distributed_float;
+        }
+      getTotalDistributed();
+      
+      // interact with dividend contract: 0xfbAb1D829e36EFbD13642229EAe2964004f38C41
+
+      const dividend_ABI = [{"inputs":[{"internalType":"address","name":"_router","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"claimDividend","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"dividendsPerShare","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"dividendsPerShareAccuracyFactor","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"shareholder","type":"address"}],"name":"getUnpaidEarnings","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"minDistribution","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"minPeriod","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gas","type":"uint256"}],"name":"process","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_minPeriod","type":"uint256"},{"internalType":"uint256","name":"_minDistribution","type":"uint256"}],"name":"setDistributionCriteria","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"shareholder","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"setShare","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"shares","outputs":[{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"totalExcluded","type":"uint256"},{"internalType":"uint256","name":"totalRealised","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalDistributed","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalDividends","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalShares","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
+
+      async function getUnpaid() {
+        //Read smart contract from EVM and return unpaid dividends
+        
+        const user = Moralis.User.current()
+        const user_address = user.get("ethAddress")
+        const options_unpaid = {
+          chain: "bsc",
+          address: "0xfbAb1D829e36EFbD13642229EAe2964004f38C41",
+          function_name: "getUnpaidEarnings",
+          abi: dividend_ABI,
+          params: {shareholder: user_address}
+        };
+        const unpaid = await Moralis.Web3API.native.runContractFunction(options_unpaid);
+        const unpaid_float = (unpaid / 1e18).toFixed(3)
+        console.log("unpaid:", unpaid_float)
+        document.getElementById("the_unpaid").innerHTML = unpaid_float;
+
+      };
+      getUnpaid();
+
+      async function claimDiv() {
+        // claim unpaid dividends
+        
+        const options = {
+          contractAddress: "0xfbAb1D829e36EFbD13642229EAe2964004f38C41",
+          functionName: "claimDividend",
+          abi: dividend_ABI,
+          chain: "bsc",
+          params: {
+            // double-check appropriate router address
+            _router: "0x10ED43C718714eb63d5aA57B78B54704E256024E"
+          }
+        };
+
+        // seems to activate before pressing button...
+        const web3 = await Moralis.enableWeb3();
+
+        const receipt = await Moralis.executeFunction(options);
+        console.log(receipt)
+        claimDiv();
+      };
+      
+
+
+    </script>
+
+  <h1>Current Price: <span id="the_price"></span></h1>
+  <h1>Circulating Supply: <span id="the_supply"></span></h1>
+  <h1>Total Distributed: <span id="the_distribution"></span></h1>
+  <h1>Total Balance: <span id="total_balance"></span></h1>
+  <h1>Unpaid Balance: <span id="the_unpaid"></span></h1>
+
+  </body>
+</html>
